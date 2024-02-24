@@ -1,7 +1,8 @@
 import './App.css';
 import MenuItem from './components/MenuItem';
-
+import logo from './logo192.png';
 import 'bootstrap/dist/css/bootstrap.min.css'; // This imports bootstrap css styles. You can use bootstrap or your own classes by using the className attribute in your elements.
+import React, { useState } from 'react';
 
 // Menu data. An array of objects where each object represents a menu item. Each menu item has an id, title, description, image name, and price.
 // You can use the image name to get the image from the images folder.
@@ -78,13 +79,12 @@ const menuItems = [
   }
 ];
 
-
-function App() {
+function MenuHeader() {
   return (
     <div>
     <div class="row">
             <div class="col-4">
-              <img src="logo192.png" class="logo" alt="logo"/>              
+              <img src={logo} class="logo" alt="logo"/>              
             </div>
             <div class="col-8">
               <h2>CAMPUS CAFE</h2>
@@ -94,20 +94,68 @@ function App() {
       <h3>Delicious, From-Scratch Recipes Close at Hand</h3>
       <h1>The Fresh Choice of UT!</h1>
     </div>
-    <div>
+    </div>
+  );
+};
+
+function App() {
+  const [cost, setCost] = useState(0);
+  const [item, setItem] = useState({});
+
+  const updateItem = (priceChange) => {
+    setCost(Math.max(cost + priceChange, 0));
+  };
+
+  function handleItemChange(title, itemCount) {
+    item[title] = itemCount;
+    setItem(item);
+  }
+
+  const handleOrder = () => {
+    if (cost === 0) {
+      alert("No items in cart");
+      return;
+    }
+
+    let cartMsg = "";
+
+    Object.keys(item).forEach((title) => {
+      cartMsg += item[title] + " " + title + "\n";
+    });
+
+    alert("Order Placed! \n" + cartMsg);
+  };
+
+  const handleClearAll = () => {
+    setCost(0);
+  };
+  
+  return (
+    <div className='body'>
+      <MenuHeader />
       <div className="menu">
-        {menuItems.map(({title, description, imageName, price}) => (
-        <MenuItem
-          title={title}
-          description={description}
-          imageName={imageName}
-          price={price}
-          />
+        {menuItems.map((item) => (
+        <MenuItem 
+          title={item.title}
+          description={item.description}
+          imageName={item.imageName}
+          price={item.price}
+          updateItem={updateItem}
+          cost={cost}
+          handleItemChange={handleItemChange}
+         />
         ))}
       </div>
-    </div>
+      <div className="subtotal">
+        Subtotal: ${cost.toFixed(2)}
+        <button className="btns" onClick={handleOrder} style={{ marginLeft: '10px' }}>Order</button>
+        <button className="btns" onClick={handleClearAll} style={{ marginLeft: '10px' }}>Clear All</button>
+      </div>
     </div>
   );
 }
 
 export default App;
+
+
+
